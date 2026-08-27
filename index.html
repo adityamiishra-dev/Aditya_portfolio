@@ -970,24 +970,25 @@ When I’m not working with data, you’ll find me exploring emerging analytics 
           <div class="row g-3">
             <div class="col-sm-6">
               <label class="form-label">Full Name *</label>
-              <input type="text" class="form-control" placeholder="Aditya Mishra"/>
+              <input type="text" id="cf-name" name="name" class="form-control" placeholder="Aditya Mishra"/>
             </div>
             <div class="col-sm-6">
               <label class="form-label">Email Address *</label>
-              <input type="email" class="form-control" placeholder="adityamishra0079@gmail.com"/>
+              <input type="email" id="cf-email" name="email" class="form-control" placeholder="aditya@example.com"/>
             </div>
             <div class="col-sm-6">
               <label class="form-label">Phone (Optional)</label>
-              <input type="tel" class="form-control" placeholder="+91 xxxxx xxxxx  "/>
+              <input type="tel" id="cf-phone" name="phone" class="form-control" placeholder="+91 xxxxx xxxxx  "/>
             </div>
             <div class="col-sm-6">
               <label class="form-label">Subject *</label>
-              <input type="text" class="form-control" placeholder="Project Inquiry"/>
+              <input type="text" id="cf-subject" name="subject" class="form-control" placeholder="Project Inquiry"/>
             </div>
             <div class="col-12">
               <label class="form-label">Message *</label>
-              <textarea class="form-control" rows="5" placeholder="Tell me about your project or idea..."></textarea>
+              <textarea id="cf-message" name="message" class="form-control" rows="5" placeholder="Tell me about your project or idea..."></textarea>
             </div>
+            <div class="col-12" id="cf-error" style="display:none;color:#e94560;font-size:.85rem"></div>
             <div class="col-12">
               <button id="sendBtn" class="hero-btn btn-gold w-100 justify-content-center" style="animation:none;font-size:.95rem;cursor:pointer;border:none">
                 <i class="fas fa-paper-plane" id="sendIcon"></i>
@@ -1004,7 +1005,7 @@ When I’m not working with data, you’ll find me exploring emerging analytics 
 <!-- FOOTER -->
 <footer>
   <div class="container">
-    <p>Created by <span>😎</span> by <span>Aditya Mishra</span>  © 2026 All rights reserved.</p>
+    <p>Created by <span>😎</span> <span>Aditya Mishra</span>  © 2026 All rights reserved.</p>
     <p style="margin-top:6px;font-size:.75rem">
 
 
@@ -1166,6 +1167,68 @@ When I’m not working with data, you’ll find me exploring emerging analytics 
       }, 3000);
     }, 1800);
   });
+
+  /* ── CONTACT FORM — SENDS TO YOUR EMAIL VIA FORMSPREE (no secret key exposed) ── */
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xljervne"; // <-- your real Formspree form ID
+
+  document.getElementById('sendBtn').addEventListener('click', async function(){
+    const icon = document.getElementById('sendIcon');
+    const text = document.getElementById('sendText');
+    const errBox = document.getElementById('cf-error');
+    errBox.style.display = 'none';
+
+    const name    = document.getElementById('cf-name').value.trim();
+    const email   = document.getElementById('cf-email').value.trim();
+    const phone   = document.getElementById('cf-phone').value.trim();
+    const subject = document.getElementById('cf-subject').value.trim();
+    const message = document.getElementById('cf-message').value.trim();
+
+    if(!name || !email || !subject || !message){
+      errBox.textContent = 'Please fill all required fields (*).';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    icon.className = 'fas fa-spinner fa-spin';
+    text.textContent = 'Sending...';
+    this.disabled = true;
+
+    try {
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('email', email);
+      fd.append('phone', phone);
+      fd.append('subject', subject);
+      fd.append('message', message);
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: fd
+      });
+      if(!res.ok) throw new Error('Request failed');
+      icon.className = 'fas fa-check';
+      text.textContent = 'Message Sent!';
+      this.style.background = 'linear-gradient(135deg,#00d4b4,#00a896)';
+      document.getElementById('cf-name').value = '';
+      document.getElementById('cf-email').value = '';
+      document.getElementById('cf-phone').value = '';
+      document.getElementById('cf-subject').value = '';
+      document.getElementById('cf-message').value = '';
+    } catch(err){
+      icon.className = 'fas fa-exclamation-triangle';
+      text.textContent = 'Failed — try again';
+      errBox.textContent = 'Something went wrong. Please email me directly at adityamishra0079@gmail.com.';
+      errBox.style.display = 'block';
+    } finally {
+      this.disabled = false;
+      setTimeout(()=>{
+        icon.className = 'fas fa-paper-plane';
+        text.textContent = 'Send Message';
+        this.style.background = '';
+      }, 3000);
+    }
+  });
+
 
   /* ── ACTIVE NAV LINK ON SCROLL ── */
   const sections = document.querySelectorAll('section[id]');
